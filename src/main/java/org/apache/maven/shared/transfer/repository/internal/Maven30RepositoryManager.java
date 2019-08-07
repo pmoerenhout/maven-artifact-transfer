@@ -20,12 +20,15 @@ package org.apache.maven.shared.transfer.repository.internal;
  */
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.handler.manager.ArtifactHandlerManager;
 import org.apache.maven.artifact.metadata.ArtifactMetadata;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.project.DefaultProjectBuildingRequest;
 import org.apache.maven.project.ProjectBuildingRequest;
+import org.apache.maven.settings.Server;
 import org.apache.maven.shared.transfer.artifact.ArtifactCoordinate;
 import org.apache.maven.shared.transfer.repository.RepositoryManager;
 import org.apache.maven.shared.transfer.repository.RepositoryManagerException;
@@ -56,6 +59,9 @@ class Maven30RepositoryManager
 
     @Requirement
     private ArtifactHandlerManager artifactHandlerManager;
+
+    @Requirement
+    private org.apache.maven.repository.RepositorySystem mavenRepositorySystem;
 
     @Override
     public String getPathForLocalArtifact( ProjectBuildingRequest buildingRequest,
@@ -178,6 +184,19 @@ class Maven30RepositoryManager
             throw new RuntimeException( e.getMessage(), e );
         }
         return session.getLocalRepository().getBasedir();
+    }
+
+    @Override
+    public ProjectBuildingRequest setRemoteRepositories(
+        ProjectBuildingRequest buildingRequest, List<ArtifactRepository> remoteRepositories, List<Server> servers )
+    {
+        ProjectBuildingRequest newRequest = new DefaultProjectBuildingRequest( buildingRequest );
+
+        newRequest.setRemoteRepositories( remoteRepositories );
+
+        mavenRepositorySystem.injectAuthentication( remoteRepositories, servers );
+
+        return newRequest;
     }
 
     /**

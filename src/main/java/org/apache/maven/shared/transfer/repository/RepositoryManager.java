@@ -20,10 +20,13 @@ package org.apache.maven.shared.transfer.repository;
  */
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.metadata.ArtifactMetadata;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.project.ProjectBuildingRequest;
+import org.apache.maven.settings.Server;
 import org.apache.maven.shared.transfer.artifact.ArtifactCoordinate;
 
 /**
@@ -63,10 +66,22 @@ public interface RepositoryManager
     ProjectBuildingRequest setLocalRepositoryBasedir( ProjectBuildingRequest request, File basedir );
 
     /**
-     * Get the localRepositryBasedir as specified in the repository session of the request
+     * Get the localRepositoryBasedir as specified in the repository session of the request
      * 
      * @param request the build request
      * @return the local repository base directory
      */
     File getLocalRepositoryBasedir( ProjectBuildingRequest request );
+
+    /**
+     * Create a new {@code ProjectBuildingRequest} with an adjusted repository session.
+     *
+     * @param request the project building request {@link ProjectBuildingRequest}
+     * @param remoteRepositories the remote repositories to set
+     * @param servers the servers with (encrypted) authentication data
+     * @return a new project building request
+     */
+    ProjectBuildingRequest setRemoteRepositories(
+        ProjectBuildingRequest request, List<ArtifactRepository> remoteRepositories, List<Server> servers
+    );
 }

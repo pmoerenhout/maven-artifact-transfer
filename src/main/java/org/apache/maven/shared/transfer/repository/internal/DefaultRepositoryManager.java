@@ -20,11 +20,14 @@ package org.apache.maven.shared.transfer.repository.internal;
  */
 
 import java.io.File;
+import java.util.List;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.metadata.ArtifactMetadata;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.project.artifact.ProjectArtifactMetadata;
+import org.apache.maven.settings.Server;
 import org.apache.maven.shared.transfer.artifact.ArtifactCoordinate;
 import org.apache.maven.shared.transfer.artifact.DefaultArtifactCoordinate;
 import org.apache.maven.shared.transfer.repository.RepositoryManager;
@@ -141,6 +144,24 @@ class DefaultRepositoryManager
         }
     }
 
+    @Override
+    public ProjectBuildingRequest setRemoteRepositories(
+        ProjectBuildingRequest request, List<ArtifactRepository> remoteRepositories, List<Server> servers
+    )
+    {
+        try
+        {
+            String hint = isMaven31() ? "maven31" : isMaven302() ? "maven302" : "maven3";
+
+            RepositoryManager effectiveRepositoryManager = container.lookup( RepositoryManager.class, hint );
+
+            return effectiveRepositoryManager.setRemoteRepositories( request, remoteRepositories, servers );
+        }
+        catch ( ComponentLookupException e )
+        {
+            throw new IllegalStateException( e.getMessage(), e );
+        }
+    }
     /**
      * @return true if the current Maven version is Maven 3.1.
      */
